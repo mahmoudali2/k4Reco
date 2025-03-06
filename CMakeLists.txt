@@ -18,7 +18,7 @@ limitations under the License.
 ]]
 CMAKE_MINIMUM_REQUIRED(VERSION 3.12)
 
-project(k4Reco)
+project(k4Reco LANGUAGES CXX)
 
 # please keep this layout for version setting, used by the automatic tagging script
 set(PACKAGE_VERSION_MAJOR 0)
@@ -26,8 +26,6 @@ set(PACKAGE_VERSION_MINOR 1)
 set(PACKAGE_VERSION_PATCH 0)
 
 set(PACKAGE_VERSION "${PACKAGE_VERSION_MAJOR}.${PACKAGE_VERSION_MINOR}.${PACKAGE_VERSION_PATCH}")
-
-SET(CMAKE_CXX_FLAGS "-fPIC -Wall -Wextra -Wpedantic ${CMAKE_CXX_FLAGS}")
 
 find_package(DD4hep REQUIRED)
 find_package(EDM4HEP REQUIRED)
