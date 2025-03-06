@@ -29,22 +29,23 @@ import os
 id_service = UniqueIDGenSvc("UniqueIDGenSvc")
 
 geoservice = GeoSvc("GeoSvc")
-geoservice.detectors = ["../../../../../k4geo/FCCee/IDEA/compact/IDEA_o1_v03/IDEA_o1_v03.xml"]
+geoservice.detectors = ["./k4geo/FCCee/IDEA/compact/IDEA_o1_v03/IDEA_o1_v03.xml"]
 geoservice.OutputLevel = INFO
 geoservice.EnableGeant4Geo = False
 
 digi = DDPlanarDigi()
 digi.SubDetectorName = "Muon-System"
 digi.IsStrip = False
-digi.ResolutionU = [0.4, 0.4, 0.4, 0.4, 0.4, 0.4]
-digi.ResolutionV = [0.4, 0.4, 0.4, 0.4, 0.4, 0.4]
+digi.ResolutionU = [0.4, 0,4, 0,4]
+digi.ResolutionV = [0.4, 0,4, 0,4]
 digi.SimTrackerHitCollectionName = ["MuonSystemCollection"]
 digi.SimTrkHitRelCollection = ["MSTrackerHitRelations"]
 digi.TrackerHitCollectionName = ["MSTrackerHits"]
+digi.OutputLevel = 1  # DEBUG level
 
 iosvc = IOSvc()
-iosvc.input = "input.root"
-iosvc.output = "output_digi_102.root"
+iosvc.input = "ddsimOutput.root"
+iosvc.output = "output_digi_mu_gun.root"
 
 # inp.collections = [
 #     "VertexBarrelCollection",

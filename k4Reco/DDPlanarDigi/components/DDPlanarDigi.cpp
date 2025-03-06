@@ -39,7 +39,7 @@ R__LOAD_LIBRARY(libDDCore)
 DDPlanarDigi::DDPlanarDigi(const std::string& name, ISvcLocator* svcLoc)
     : MultiTransformer(name, svcLoc,
                        {
-                           KeyValues("SimTrackerHitCollectionName", {"SimTrackerHit"}),
+                           KeyValues("SimTrackerHitCollectionName", {"SimTrackerHits"}),
                            KeyValues("HeaderName", {"EventHeader"}),
                        },
                        {KeyValues("TrackerHitCollectionName", {"MSTrackerHits"}),
