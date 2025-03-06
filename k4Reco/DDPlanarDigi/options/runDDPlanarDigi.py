@@ -29,22 +29,22 @@ import os
 id_service = UniqueIDGenSvc("UniqueIDGenSvc")
 
 geoservice = GeoSvc("GeoSvc")
-geoservice.detectors = [os.environ["K4GEO"]+"/FCCee/CLD/compact/CLD_o2_v07/CLD_o2_v07.xml"]
+geoservice.detectors = ["../../../../../k4geo/FCCee/IDEA/compact/IDEA_o1_v03/IDEA_o1_v03.xml"]
 geoservice.OutputLevel = INFO
 geoservice.EnableGeant4Geo = False
 
 digi = DDPlanarDigi()
-digi.SubDetectorName = "Vertex"
+digi.SubDetectorName = "Muon-System"
 digi.IsStrip = False
-digi.ResolutionU = [0.003, 0.003, 0.003, 0.003, 0.003, 0.003]
-digi.ResolutionV = [0.003, 0.003, 0.003, 0.003, 0.003, 0.003]
-digi.SimTrackerHitCollectionName = ["VertexBarrelCollection"]
-digi.SimTrkHitRelCollection = ["VXDTrackerHitRelations"]
-digi.TrackerHitCollectionName = ["VXDTrackerHits"]
+digi.ResolutionU = [0.4, 0.4, 0.4, 0.4, 0.4, 0.4]
+digi.ResolutionV = [0.4, 0.4, 0.4, 0.4, 0.4, 0.4]
+digi.SimTrackerHitCollectionName = ["MuonSystemCollection"]
+digi.SimTrkHitRelCollection = ["MSTrackerHitRelations"]
+digi.TrackerHitCollectionName = ["MSTrackerHits"]
 
 iosvc = IOSvc()
 iosvc.input = "input.root"
-iosvc.output = "output_digi.root"
+iosvc.output = "output_digi_102.root"
 
 # inp.collections = [
 #     "VertexBarrelCollection",

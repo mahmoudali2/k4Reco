@@ -33,14 +33,17 @@
 #include <fmt/format.h>
 #include <cmath>
 
+#include "DD4hep/BitFieldCoder.h"
+R__LOAD_LIBRARY(libDDCore) 
+
 DDPlanarDigi::DDPlanarDigi(const std::string& name, ISvcLocator* svcLoc)
     : MultiTransformer(name, svcLoc,
                        {
-                           KeyValues("SimTrackerHitCollectionName", {"SimTrackerHits"}),
+                           KeyValues("SimTrackerHitCollectionName", {"SimTrackerHit"}),
                            KeyValues("HeaderName", {"EventHeader"}),
                        },
-                       {KeyValues("TrackerHitCollectionName", {"VTXTrackerHits"}),
-                        KeyValues("SimTrkHitRelCollection", {"VTXTrackerHitRelations"})}) {
+                       {KeyValues("TrackerHitCollectionName", {"MSTrackerHits"}),
+                        KeyValues("SimTrkHitRelCollection", {"MSTrackerHitRelations"})}) {
   m_uidSvc = service<IUniqueIDGenSvc>("UniqueIDGenSvc", true);
   if (!m_uidSvc) {
     error() << "Unable to get UniqueIDGenSvc" << endmsg;
@@ -84,6 +87,21 @@ StatusCode DDPlanarDigi::initialize() {
   // Get and store the name for a debug message later
   (void)this->getProperty("SimTrackerHitCollectionName", m_collName);
 
+  /*Count volumes that require surfaces (assuming each sensitive volume should have one)
+  int volumesRequiringSurfaces = 0;
+
+  for (const auto& child : det.children()) {
+
+    // Access the sensitive detector for the volume
+    dd4hep::SensitiveDetector sd = m_geoSvc->getDetector()->sensitiveDetector();
+    if (sd.isValid()) {
+      ++volumesRequiringSurfaces;
+    }
+  }
+
+  info() << "Number of volumes requiring surfaces: " << volumesRequiringSurfaces << endmsg;
+  info() << "Total number of found surfaces: " << surfaceMap->size() << endmsg;
+  */ 
   return StatusCode::SUCCESS;
 }
 
@@ -94,6 +112,8 @@ std::tuple<edm4hep::TrackerHitPlaneCollection, edm4hep::TrackerHitSimTrackerHitL
           << headers[0].getRunNumber() << endmsg;
   m_engine.SetSeed(seed);
 
+  info() << "Input Sim Hit collection size: " << simTrackerHits.size() << endmsg;
+
   int nCreatedHits   = 0;
   int nDismissedHits = 0;
 
@@ -103,8 +123,10 @@ std::tuple<edm4hep::TrackerHitPlaneCollection, edm4hep::TrackerHitSimTrackerHitL
   std::string cellIDEncodingString = m_geoSvc->constantAsString(m_encodingStringVariable.value());
   dd4hep::DDSegmentation::BitFieldCoder bitFieldCoder(cellIDEncodingString);
 
+  info() << "CellID Encoding String: " << cellIDEncodingString << endmsg;
+
   int nSimHits = simTrackerHits.size();
-  debug() << "Processing collection " << m_collName << " with " << simTrackerHits.size() << " hits ... " << endmsg;
+  info() << "Processing collection " << m_collName << " with " << simTrackerHits.size() << " hits ... " << endmsg;
 
   for (const auto& hit : simTrackerHits) {
     ++(*m_histograms[hitE])[hit.getEDep() * (dd4hep::GeV / dd4hep::keV)];
@@ -115,6 +137,17 @@ std::tuple<edm4hep::TrackerHitPlaneCollection, edm4hep::TrackerHitSimTrackerHitL
     }
 
     const int cellID0 = hit.getCellID();
+    int system = bitFieldCoder.get(cellID0, "system");
+    int type = bitFieldCoder.get(cellID0, "type");
+    int layer = bitFieldCoder.get(cellID0, "layer");
+   // int side = bitFieldCoder.get(cellID0, "side");
+    int chamber = bitFieldCoder.get(cellID0, "chamber");
+    info() << "Hit in system: " << system 
+       << " type: " << type 
+       << " Layer: " << layer 
+     //  << " side: " << side 
+       << " chamber: " << chamber 
+       << " CellID: " << hit.getCellID() << endmsg;
 
     // get the measurement surface for this hit using the CellID
     dd4hep::rec::SurfaceMap::const_iterator sI = surfaceMap->find(cellID0);
@@ -124,7 +157,7 @@ std::tuple<edm4hep::TrackerHitPlaneCollection, edm4hep::TrackerHitSimTrackerHitL
     }
 
     const dd4hep::rec::ISurface* surf  = sI->second;
-    int                          layer = bitFieldCoder.get(cellID0, "layer");
+   // int                          layer = bitFieldCoder.get(cellID0, "layer");
 
     dd4hep::rec::Vector3D oldPos(hit.getPosition()[0], hit.getPosition()[1], hit.getPosition()[2]);
     dd4hep::rec::Vector3D newPos;
@@ -137,6 +170,7 @@ std::tuple<edm4hep::TrackerHitPlaneCollection, edm4hep::TrackerHitSimTrackerHitL
       //         << *surf
       //         << " distance: " << surf->distance(  dd4hep::mm * oldPos )
       //         << endmsg;
+      
 
       if (m_forceHitsOntoSurface) {
         dd4hep::rec::Vector2D lv           = surf->globalToLocal(dd4hep::mm * oldPos);

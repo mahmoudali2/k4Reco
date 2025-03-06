@@ -93,7 +93,7 @@ struct DDPlanarDigi final
       const edm4hep::EventHeaderCollection&   headers) const override;
 
 private:
-  Gaudi::Property<std::string>        m_subDetName{this, "SubDetectorName", "VXD", "Name of the subdetector"};
+  Gaudi::Property<std::string>        m_subDetName{this, "SubDetectorName", "Muon-System", "Name of the subdetector"};
   Gaudi::Property<bool>               m_isStrip{this, "IsStrip", false, "Whether the hits are 1D strip hits"};
   Gaudi::Property<std::vector<float>> m_resULayer{
       this, "ResolutionU", {0.004}, "Resolution in the direction of u; either one per layer or one for all layers"};
@@ -120,7 +120,7 @@ private:
   Gaudi::Property<std::vector<float>> m_timeWindowMax{
       this, "TimeWindowMax", {1e9}, "Maximum time (ns) of SimTrackerHit to be digitized"};
   Gaudi::Property<std::string> m_encodingStringVariable{
-      this, "EncodingStringParameterName", "GlobalTrackerReadoutID",
+      this, "EncodingStringParameterName", "MuonSystemReadoutID",
       "The name of the DD4hep constant that contains the Encoding string for tracking detectors"};
   Gaudi::Property<std::string> m_geoSvcName{this, "GeoSvcName", "GeoSvc", "The name of the GeoSvc instance"};
   Gaudi::Property<int> m_maxTries{this, "MaxTries", 10, "Maximum number of tries to find a valid surface for a hit"};
