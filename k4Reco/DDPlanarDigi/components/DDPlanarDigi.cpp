@@ -91,6 +91,10 @@ StatusCode DDPlanarDigi::initialize() {
   // Get and store the name for a debug message later
   (void)this->getProperty("SimTrackerHitCollectionName", m_collName);
 
+  if (m_cellIDBits != 64) {
+    m_mask = (static_cast<std::uint64_t>(1) << m_cellIDBits) - 1;
+  }
+
   /*Count volumes that require surfaces (assuming each sensitive volume should have one)
   int volumesRequiringSurfaces = 0;
 
@@ -140,12 +144,12 @@ std::tuple<edm4hep::TrackerHitPlaneCollection, edm4hep::TrackerHitSimTrackerHitL
       continue;
     }
 
-    const int cellID0 = hit.getCellID();
-    int system = bitFieldCoder.get(cellID0, "system");
-    int type = bitFieldCoder.get(cellID0, "type");
-    int layer = bitFieldCoder.get(cellID0, "layer");
-   // int side = bitFieldCoder.get(cellID0, "side");
-    int chamber = bitFieldCoder.get(cellID0, "chamber");
+    const std::uint64_t cellID = hit.getCellID() & m_mask;
+    int system = bitFieldCoder.get(cellID, "system");
+    int type = bitFieldCoder.get(cellID, "type");
+    int layer = bitFieldCoder.get(cellID, "layer");
+   // int side = bitFieldCoder.get(cellID, "side");
+    int chamber = bitFieldCoder.get(cellID, "chamber");
     info() << "Hit in system: " << system 
        << " type: " << type 
        << " Layer: " << layer 
@@ -154,14 +158,14 @@ std::tuple<edm4hep::TrackerHitPlaneCollection, edm4hep::TrackerHitSimTrackerHitL
        << " CellID: " << hit.getCellID() << endmsg;
 
     // get the measurement surface for this hit using the CellID
-    dd4hep::rec::SurfaceMap::const_iterator sI = surfaceMap->find(cellID0);
+    dd4hep::rec::SurfaceMap::const_iterator sI = surfaceMap->find(cellID);
 
     if (sI == surfaceMap->end()) {
-      throw std::runtime_error(fmt::format("DDPlanarDigi::processEvent(): no surface found for cellID : {}", cellID0));
+      throw std::runtime_error(fmt::format("DDPlanarDigi::processEvent(): no surface found for cellID : {}", cellID));
     }
 
     const dd4hep::rec::ISurface* surf  = sI->second;
-   // int                          layer = bitFieldCoder.get(cellID0, "layer");
+   // int                          layer = bitFieldCoder.get(cellID, "layer");
 
     dd4hep::rec::Vector3D oldPos(hit.getPosition()[0], hit.getPosition()[1], hit.getPosition()[2]);
     dd4hep::rec::Vector3D newPos;
@@ -302,7 +306,7 @@ std::tuple<edm4hep::TrackerHitPlaneCollection, edm4hep::TrackerHitSimTrackerHitL
 
     auto trkHit = trkhitVec.create();
 
-    trkHit.setCellID(cellID0);
+    trkHit.setCellID(cellID);
 
     trkHit.setPosition(newPos.const_array());
     trkHit.setTime(hitT);
