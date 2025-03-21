@@ -119,7 +119,6 @@ std::tuple<edm4hep::TrackerHitPlaneCollection, edm4hep::TrackerHitSimTrackerHitL
   int nSimHits = simTrackerHits.size();
   debug() << "Processing collection " << m_collName << " with " << simTrackerHits.size() << " hits ... " << endmsg;
 
-
   for (const auto& hit : simTrackerHits) {
     ++(*m_histograms[hitE])[hit.getEDep() * (dd4hep::GeV / dd4hep::keV)];
 
